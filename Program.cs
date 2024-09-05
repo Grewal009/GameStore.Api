@@ -1,5 +1,6 @@
 
 using GameStore.Api.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 List<Game> games = new(){
     new Game { Id = 1, Name = "Streetfighter", Genre= "Fighting", Price = 19.99M, ReleaseDate = new DateTime(2021,2,5),ImageUrl= "https://placeholder.co/100"},
@@ -10,6 +11,8 @@ List<Game> games = new(){
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
+
+const string GetGameEndpointName = "GetGame";
 
 //GET request to get all games
 app.MapGet("/games", () => games);
@@ -26,7 +29,15 @@ app.MapGet("/games/{id}", (int id) =>
         return Results.NotFound();
     }
     return Results.Ok(game);
-});
+}).WithName(GetGameEndpointName);
 
+//POST request to create resource
+app.MapPost("/games", (Game game) =>
+{
+    game.Id = games.Max(game => game.Id) + 1;
+    games.Add(game);
+
+    return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
+});
 
 app.Run();
