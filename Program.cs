@@ -57,9 +57,18 @@ app.MapPut("/games/{id}", (int id, Game updatedGame) =>
     existingGame.ImageUrl = updatedGame.ImageUrl;
 
     return Results.NoContent();
-
 });
 
+//DELETE request to delete game
+app.MapDelete("/games/{id}", (int id) =>
+{
+    Game? game = games.Find(game => game.Id == id);
+    if (game is not null)
+    {
+        games.Remove(game);
+    }
 
+    return Results.NoContent();
+});
 
 app.Run();
