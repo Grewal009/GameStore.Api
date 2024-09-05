@@ -11,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
+//GET request to get all games
 app.MapGet("/games", () => games);
+
+//GET request to get game by id
+app.MapGet("/games/{id}", (int id) => games.Find(game => game.Id == id));
 
 app.Run();
