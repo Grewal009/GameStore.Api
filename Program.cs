@@ -12,16 +12,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
+var group = app.MapGroup("/games");
+
 const string GetGameEndpointName = "GetGame";
 
 //GET request to get all games
-app.MapGet("/games", () => games);
+group.MapGet("/", () => games);
 
 //GET request to get game by id
-//app.MapGet("/games/{id}", (int id) => games.Find(game => game.Id == id));
+//group.MapGet("/games/{id}", (int id) => games.Find(game => game.Id == id));
 
 //GET request to get game by id (handle both cases valid and invalid id)
-app.MapGet("/games/{id}", (int id) =>
+group.MapGet("/{id}", (int id) =>
 {
     Game? game = games.Find(game => game.Id == id);
     if (game == null)
@@ -32,7 +34,7 @@ app.MapGet("/games/{id}", (int id) =>
 }).WithName(GetGameEndpointName);
 
 //POST request to create resource
-app.MapPost("/games", (Game game) =>
+group.MapPost("/", (Game game) =>
 {
     game.Id = games.Max(game => game.Id) + 1;
     games.Add(game);
@@ -41,7 +43,7 @@ app.MapPost("/games", (Game game) =>
 });
 
 //PUT request to update record
-app.MapPut("/games/{id}", (int id, Game updatedGame) =>
+group.MapPut("/{id}", (int id, Game updatedGame) =>
 {
     Game? existingGame = games.Find(game => game.Id == id);
 
@@ -60,7 +62,7 @@ app.MapPut("/games/{id}", (int id, Game updatedGame) =>
 });
 
 //DELETE request to delete game
-app.MapDelete("/games/{id}", (int id) =>
+group.MapDelete("/{id}", (int id) =>
 {
     Game? game = games.Find(game => game.Id == id);
     if (game is not null)
