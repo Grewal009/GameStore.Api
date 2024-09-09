@@ -12,7 +12,7 @@ public class InMemoryGamesRepository
     };
 
     //get all games 
-    public IEnumerable<Game> GetALL()
+    public IEnumerable<Game> GetAll()
     {
         return games;
     }

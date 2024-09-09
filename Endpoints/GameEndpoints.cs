@@ -1,26 +1,22 @@
 
 using GameStore.Api.Entities;
+using GameStore.Api.Repositories;
 
 namespace GameStore.Api.Endpoints;
 
 public static class GameEndpoints
 {
-    static List<Game> games = new(){
-    new Game { Id = 1, Name = "Streetfighter", Genre= "Fighting", Price = 19.99M, ReleaseDate = new DateTime(2021,2,5),ImageUrl= "https://placeholder.co/100"},
-    new Game { Id = 2, Name = "Final Fantasy", Genre= "Roleplaying", Price = 29.99M, ReleaseDate = new DateTime(2022,10,15),ImageUrl= "https://placeholder.co/100"},
-    new Game { Id = 3, Name = "FIFA 2023", Genre= "Sports", Price = 49.99M, ReleaseDate = new DateTime(2023,12,25),ImageUrl= "https://placeholder.co/100"},
-    };
+
 
     const string GetGameEndpointName = "GetGame";
     public static RouteGroupBuilder MapGamesEndpoints(this IEndpointRouteBuilder routes)
     {
+        InMemoryGamesRepository repository = new();
         var group = routes.MapGroup("/games")
             .WithParameterValidation(); //inforce validations to all endpoints using nuget package (MinimalApis.Extensions)
 
-
-
         //GET request to get all games
-        group.MapGet("/", () => games);
+        group.MapGet("/", () => repository.GetAll());
 
         //GET request to get game by id
         //group.MapGet("/games/{id}", (int id) => games.Find(game => game.Id == id));
@@ -28,19 +24,22 @@ public static class GameEndpoints
         //GET request to get game by id (handle both cases valid and invalid id)
         group.MapGet("/{id}", (int id) =>
         {
-            Game? game = games.Find(game => game.Id == id);
-            if (game == null)
+            Game? game = repository.Get(id);
+            /* if (game == null)
             {
                 return Results.NotFound();
             }
-            return Results.Ok(game);
+            return Results.Ok(game); */
+            //refactoring above code in one line
+            return game is not null ? Results.Ok(game) : Results.NotFound();
+
         }).WithName(GetGameEndpointName);
+
 
         //POST request to create resource
         group.MapPost("/", (Game game) =>
         {
-            game.Id = games.Max(game => game.Id) + 1;
-            games.Add(game);
+            repository.Create(game);
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
         });
@@ -48,7 +47,7 @@ public static class GameEndpoints
         //PUT request to update record
         group.MapPut("/{id}", (int id, Game updatedGame) =>
         {
-            Game? existingGame = games.Find(game => game.Id == id);
+            Game? existingGame = repository.Get(id);
 
             if (existingGame is null)
             {
@@ -61,16 +60,18 @@ public static class GameEndpoints
             existingGame.ReleaseDate = updatedGame.ReleaseDate;
             existingGame.ImageUrl = updatedGame.ImageUrl;
 
+            repository.Update(existingGame);
+
             return Results.NoContent();
         });
 
         //DELETE request to delete game
         group.MapDelete("/{id}", (int id) =>
         {
-            Game? game = games.Find(game => game.Id == id);
+            Game? game = repository.Get(id);
             if (game is not null)
             {
-                games.Remove(game);
+                repository.Delete(id);
             }
 
             return Results.NoContent();
