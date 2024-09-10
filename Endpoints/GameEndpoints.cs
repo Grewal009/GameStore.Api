@@ -11,18 +11,19 @@ public static class GameEndpoints
     const string GetGameEndpointName = "GetGame";
     public static RouteGroupBuilder MapGamesEndpoints(this IEndpointRouteBuilder routes)
     {
-        InMemoryGamesRepository repository = new();
+        //InMemoryGamesRepository repository = new();
+
         var group = routes.MapGroup("/games")
             .WithParameterValidation(); //inforce validations to all endpoints using nuget package (MinimalApis.Extensions)
 
         //GET request to get all games
-        group.MapGet("/", () => repository.GetAll());
+        group.MapGet("/", (IGamesRepository repository) => repository.GetAll());
 
         //GET request to get game by id
         //group.MapGet("/games/{id}", (int id) => games.Find(game => game.Id == id));
 
         //GET request to get game by id (handle both cases valid and invalid id)
-        group.MapGet("/{id}", (int id) =>
+        group.MapGet("/{id}", (int id, IGamesRepository repository) =>
         {
             Game? game = repository.Get(id);
             /* if (game == null)
@@ -37,7 +38,7 @@ public static class GameEndpoints
 
 
         //POST request to create resource
-        group.MapPost("/", (Game game) =>
+        group.MapPost("/", (Game game, IGamesRepository repository) =>
         {
             repository.Create(game);
 
@@ -45,7 +46,7 @@ public static class GameEndpoints
         });
 
         //PUT request to update record
-        group.MapPut("/{id}", (int id, Game updatedGame) =>
+        group.MapPut("/{id}", (int id, Game updatedGame, IGamesRepository repository) =>
         {
             Game? existingGame = repository.Get(id);
 
@@ -66,7 +67,7 @@ public static class GameEndpoints
         });
 
         //DELETE request to delete game
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", (int id, IGamesRepository repository) =>
         {
             Game? game = repository.Get(id);
             if (game is not null)
