@@ -14,11 +14,7 @@ builder.Services.AddSqlServer<GameStoreContext>(connString);
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<GameStoreContext>();
-    dbContext.Database.Migrate();
-}
+app.Services.InitializeDb();
 
 app.MapGamesEndpoints(); //using extension method
 
