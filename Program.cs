@@ -1,8 +1,6 @@
 using GameStore.Api.Data;
 using GameStore.Api.Endpoints;
-using GameStore.Api.Entities;
-using GameStore.Api.Repositories;
-using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,11 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddSingleton<IGamesRepository, InMemoryGamesRepository>();
 
 //using EntityFrameworkGamesRepository instead of InMemoryGamesRepository
-builder.Services.AddScoped<IGamesRepository, EntityFrameworkGamesRepository>();
+//builder.Services.AddScoped<IGamesRepository, EntityFrameworkGamesRepository>();
 
 // reading connection string from user-secrets
-var connString = builder.Configuration.GetConnectionString("GameStoreContext");
-builder.Services.AddSqlServer<GameStoreContext>(connString);
+//var connString = builder.Configuration.GetConnectionString("GameStoreContext");
+//builder.Services.AddSqlServer<GameStoreContext>(connString);
+
+builder.Services.AddRepositories(builder.Configuration);
 
 var app = builder.Build();
 
