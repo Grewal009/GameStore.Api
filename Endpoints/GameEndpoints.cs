@@ -34,7 +34,8 @@ public static class GameEndpoints
             //refactoring above code in one line
             return game is not null ? Results.Ok(game.AsDto()) : Results.NotFound();
 
-        }).WithName(GetGameEndpointName);
+        }).WithName(GetGameEndpointName)
+        .RequireAuthorization();
 
 
         //POST request to create resource
@@ -53,7 +54,7 @@ public static class GameEndpoints
             await repository.CreateAsync(game);
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
-        });
+        }).RequireAuthorization();
 
         //PUT request to update record
         group.MapPut("/{id}", async (int id, UpdateGameDto updatedGameDto, IGamesRepository repository) =>
@@ -74,7 +75,7 @@ public static class GameEndpoints
             await repository.UpdateAsync(existingGame);
 
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         //DELETE request to delete game
         group.MapDelete("/{id}", async (int id, IGamesRepository repository) =>
@@ -86,7 +87,7 @@ public static class GameEndpoints
             }
 
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         return group;
     }
