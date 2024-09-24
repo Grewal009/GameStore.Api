@@ -54,7 +54,11 @@ public static class GameEndpoints
             await repository.CreateAsync(game);
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
-        }).RequireAuthorization();
+        }).RequireAuthorization(policy =>
+        {
+            policy.RequireRole("Admin"); //to access POST endpoint we need access token with specific role i.e Admin 
+        }
+        );
 
         //PUT request to update record
         group.MapPut("/{id}", async (int id, UpdateGameDto updatedGameDto, IGamesRepository repository) =>
