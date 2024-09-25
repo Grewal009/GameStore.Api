@@ -1,3 +1,4 @@
+using GameStore.Api.Authorization;
 using GameStore.Api.Data;
 using GameStore.Api.Endpoints;
 
@@ -18,7 +19,13 @@ builder.Services.AddRepositories(builder.Configuration);
 
 builder.Services.AddAuthentication().AddJwtBearer();
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.ReadAccess, builder => builder.RequireClaim("scope", "games:read"));
+
+    options.AddPolicy(Policies.WriteAccess, builder => builder.RequireClaim("scope", "games:write"));
+
+});
 
 var app = builder.Build();
 
