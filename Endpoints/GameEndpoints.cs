@@ -1,4 +1,5 @@
 
+using GameStore.Api.Authorization;
 using GameStore.Api.Entities;
 using GameStore.Api.Repositories;
 
@@ -35,7 +36,7 @@ public static class GameEndpoints
             return game is not null ? Results.Ok(game.AsDto()) : Results.NotFound();
 
         }).WithName(GetGameEndpointName)
-        .RequireAuthorization();
+        .RequireAuthorization(Policies.ReadAccess);
 
 
         //POST request to create resource
@@ -54,11 +55,7 @@ public static class GameEndpoints
             await repository.CreateAsync(game);
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
-        }).RequireAuthorization(policy =>
-        {
-            policy.RequireRole("Admin"); //to access POST endpoint we need access token with specific role i.e Admin 
-        }
-        );
+        }).RequireAuthorization(Policies.WriteAccess);
 
         //PUT request to update record
         group.MapPut("/{id}", async (int id, UpdateGameDto updatedGameDto, IGamesRepository repository) =>
@@ -79,7 +76,7 @@ public static class GameEndpoints
             await repository.UpdateAsync(existingGame);
 
             return Results.NoContent();
-        }).RequireAuthorization();
+        }).RequireAuthorization(Policies.WriteAccess);
 
         //DELETE request to delete game
         group.MapDelete("/{id}", async (int id, IGamesRepository repository) =>
@@ -91,7 +88,7 @@ public static class GameEndpoints
             }
 
             return Results.NoContent();
-        }).RequireAuthorization();
+        }).RequireAuthorization(Policies.WriteAccess);
 
         return group;
     }
